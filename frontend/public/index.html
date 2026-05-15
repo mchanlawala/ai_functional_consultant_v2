@@ -1,0 +1,427 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AI Functional Consultant</title>
+<style>
+:root{--navy:#0F1F38;--blue:#2563EB;--blue-l:#EFF6FF;--teal:#0F766E;--teal-l:#F0FDFA;
+--amber:#D97706;--amber-l:#FFFBEB;--green:#16A34A;--green-l:#F0FDF4;
+--red:#DC2626;--red-l:#FEF2F2;--gray-50:#F8FAFC;--gray-100:#F1F5F9;
+--gray-200:#E2E8F0;--gray-400:#94A3B8;--gray-600:#475569;--gray-800:#1E293B;
+--sidebar:250px;--header:60px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--gray-50);color:var(--gray-800);height:100vh;display:flex;flex-direction:column;}
+.hdr{height:var(--header);background:var(--navy);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.hdr-logo{font-size:17px;font-weight:700;color:white;display:flex;align-items:center;gap:8px;}
+.hdr-logo span{width:30px;height:30px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.hdr-badge{font-size:11px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);padding:3px 10px;border-radius:20px;}
+.hdr-spacer{flex:1;}
+.hdr-btn{font-size:12px;color:rgba(255,255,255,.7);background:transparent;border:1px solid rgba(255,255,255,.2);padding:5px 12px;border-radius:6px;cursor:pointer;transition:.15s;}
+.hdr-btn:hover{background:rgba(255,255,255,.1);}
+.hdr-btn.active{background:var(--blue);color:white;border-color:var(--blue);}
+.shell{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:var(--sidebar);background:white;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.sb-sec{padding:12px 8px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400);}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;margin:1px 8px;cursor:pointer;font-size:13px;color:var(--gray-600);transition:.12s;}
+.sb-item:hover{background:var(--gray-50);}
+.sb-item.active{background:var(--blue-l);color:var(--blue);font-weight:600;}
+.sb-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-200);flex-shrink:0;}
+.sb-dot.done{background:var(--green);}
+.sb-dot.active{background:var(--blue);}
+.sb-spacer{flex:1;}
+.sb-info{padding:12px;margin:8px;background:var(--gray-50);border-radius:8px;font-size:11px;color:var(--gray-400);line-height:1.6;}
+.sb-info strong{color:var(--gray-600);display:block;margin-bottom:3px;}
+.main{flex:1;overflow-y:auto;padding:28px 32px;}
+.page-hdr{margin-bottom:24px;}
+.page-hdr h1{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.page-hdr p{font-size:14px;color:var(--gray-600);}
+.steps{display:flex;margin-bottom:24px;background:white;border:1px solid var(--gray-200);border-radius:10px;overflow:hidden;}
+.step{flex:1;text-align:center;padding:11px 8px;border-right:1px solid var(--gray-200);font-size:11px;color:var(--gray-400);}
+.step:last-child{border-right:none;}
+.step.done{color:var(--green);}
+.step.active{color:var(--blue);background:var(--blue-l);font-weight:600;}
+.step-num{font-size:14px;display:block;margin-bottom:2px;}
+.card{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:20px 24px;margin-bottom:16px;}
+.card-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:12px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600);margin-bottom:6px;}
+input[type=text],textarea,select{width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:var(--font);background:white;color:var(--gray-800);transition:.15s;}
+input[type=text]:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+textarea{min-height:90px;resize:vertical;}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--blue);color:white;}.btn-primary:hover{background:#1d4ed8;}
+.btn-primary:disabled{background:var(--gray-400);cursor:not-allowed;}
+.btn-teal{background:var(--teal);color:white;}.btn-teal:hover{background:#0d6761;}
+.btn-success{background:var(--green);color:white;}.btn-success:hover{background:#15803d;}
+.btn-amber{background:var(--amber);color:white;}.btn-amber:hover{background:#b45309;}
+.btn-outline{background:white;color:var(--gray-600);border:1px solid var(--gray-200);}.btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-blue{background:var(--blue-l);color:var(--blue);}
+.badge-green{background:var(--green-l);color:var(--green);}
+.badge-amber{background:var(--amber-l);color:var(--amber);}
+.badge-red{background:var(--red-l);color:var(--red);}
+.badge-teal{background:var(--teal-l);color:var(--teal);}
+.badge-gray{background:var(--gray-100);color:var(--gray-600);}
+.progress-wrap{margin:12px 0;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-600);margin-bottom:6px;}
+.progress-bar{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:4px;transition:width .4s;}
+.alert{padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;}
+.alert-info{background:var(--blue-l);color:var(--blue);border-left:3px solid var(--blue);}
+.alert-success{background:var(--green-l);color:var(--green);border-left:3px solid var(--green);}
+.alert-warning{background:var(--amber-l);color:var(--amber);border-left:3px solid var(--amber);}
+.alert-error{background:var(--red-l);color:var(--red);border-left:3px solid var(--red);}
+.spinner{width:18px;height:18px;border:3px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.log{background:var(--gray-800);color:#93C5FD;padding:12px 14px;border-radius:8px;font-size:11px;font-family:'Fira Code',monospace;line-height:1.7;max-height:200px;overflow-y:auto;}
+.log-entry{display:flex;gap:8px;}
+.log-time{color:var(--gray-400);flex-shrink:0;}
+.meeting-card{border:1px solid var(--gray-200);border-radius:8px;padding:14px 16px;margin-bottom:10px;background:white;display:flex;align-items:center;gap:12px;}
+.meeting-icon{width:36px;height:36px;background:var(--teal-l);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.meeting-name{font-size:13px;font-weight:600;color:var(--navy);}
+.meeting-meta{font-size:11px;color:var(--gray-400);margin-top:2px;}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;}
+.doc-card{border:1px solid var(--gray-200);border-radius:8px;padding:14px 16px;background:white;display:flex;flex-direction:column;gap:8px;}
+.doc-card.approved{border-color:var(--green);}
+.doc-card.failed{background:var(--red-l);border-color:#fca5a5;}
+.doc-card.mom{border-left:3px solid var(--teal);}
+.doc-num{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:2px 7px;border-radius:4px;flex-shrink:0;}
+.doc-name{font-size:13px;font-weight:600;color:var(--navy);line-height:1.3;}
+.doc-desc{font-size:11px;color:var(--gray-400);}
+.upload-area{border:2px dashed var(--gray-200);border-radius:10px;padding:32px;text-align:center;background:var(--gray-50);cursor:pointer;transition:.2s;}
+.upload-area:hover,.upload-area.drag-over{border-color:var(--blue);background:var(--blue-l);}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:white;border:1px solid var(--gray-200);border-radius:8px;padding:16px;text-align:center;}
+.stat-num{font-size:28px;font-weight:700;color:var(--navy);}
+.stat-label{font-size:11px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;}
+@media(max-width:768px){.sidebar{display:none;}.main{padding:16px;}.stat-grid{grid-template-columns:repeat(2,1fr);}.doc-grid{grid-template-columns:1fr;}.steps{display:none;}}
+</style></head><body>
+<div id="app"><div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;"><div class="spinner" style="width:40px;height:40px;border-width:4px;"></div><p style="color:var(--gray-400);font-size:14px;">Loading AI Functional Consultant...</p></div></div>
+<script>
+const BASE='http://localhost:8000/api';
+const api={
+  create:(n)=>post('/sessions/create',{project_name:n}),
+  get:(id)=>fetch(`${BASE}/sessions/${id}`).then(r=>r.json()),
+  list:()=>fetch(`${BASE}/sessions`).then(r=>r.json()),
+  upload:(id,file,name)=>{const fd=new FormData();fd.append('file',file);fd.append('meeting_name',name||'');return fetch(`${BASE}/sessions/${id}/upload`,{method:'POST',body:fd}).then(r=>r.ok?r.json():r.json().then(e=>{throw new Error(e.detail||'Upload failed');}));},
+  generate:(id)=>post(`/sessions/${id}/generate`,{}),
+  review:(id,dec,com,fb)=>post(`/sessions/${id}/review`,{session_id:id,decision:dec,comments:com,document_feedback:fb}),
+  approveDoc:(id,did,fb)=>post(`/sessions/${id}/approve-document?doc_id=${did}&feedback=${encodeURIComponent(fb||'')}`,{}),
+  publish:(id)=>post(`/sessions/${id}/publish`,{}),
+  status:()=>fetch(`${BASE}/status`).then(r=>r.json()),
+  downloadUrl:(id)=>`${BASE}/sessions/${id}/download`,
+  docUrl:(id,did)=>`${BASE}/sessions/${id}/document/${did}`,
+  previewUrl:(id,did)=>`${BASE}/sessions/${id}/preview/${did}`,
+  ws:(id)=>new WebSocket(`ws://localhost:8000/api/ws/${id}`),
+};
+function post(p,b){return fetch(`${BASE}${p}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.ok?r.json():r.json().then(e=>{throw new Error(e.detail||'Error');}));}
+
+let S={page:'home',sessionId:null,session:null,progress:{pct:0,step:'',message:''},log:[],ws:null,error:null,docFeedback:{},reviewComment:'',dragOver:false,serverStatus:null,savedProject:''};
+const ss=p=>{Object.assign(S,p);render();};
+const log=m=>{S.log=[...S.log.slice(-40),{t:new Date().toLocaleTimeString(),m}];};
+
+function connectWS(id){
+  if(S.ws){try{S.ws.close();}catch(e){}}
+  const ws=api.ws(id);
+  ws.onopen=()=>{log('Connected');setInterval(()=>ws.readyState===1&&ws.send('ping'),20000);};
+  ws.onmessage=evt=>{
+    if(evt.data==='pong')return;
+    try{
+      const msg=JSON.parse(evt.data);
+      if(msg.type==='state'&&msg.data){
+        S.session=msg.data;
+        S.progress={pct:msg.data.progress||0,step:msg.data.current_step||'',message:''};
+        log(`[state] ${msg.data.status} ${msg.data.progress}%`);
+        autoNav(msg.data.status);
+      }else if(msg.type==='progress'){
+        S.progress={pct:msg.progress,step:msg.step,message:msg.message};
+        log(`[${msg.progress}%] ${msg.step}: ${msg.message}`);
+        api.get(S.sessionId||'').then(s=>{S.session=s;autoNav(s.status);render();}).catch(()=>{});
+      }
+      render();
+    }catch(e){}
+  };
+  ws.onclose=()=>log('Disconnected');
+  S.ws=ws;
+}
+
+function autoNav(status){
+  const map={processing:'processing',generating:'processing',reviewing:'review',approved:'review',published:'published'};
+  const pg=map[status];
+  if(pg&&pg!==S.page&&S.sessionId)S.page=pg;
+}
+
+function render(){
+  document.getElementById('app').innerHTML=`${hdr()}<div class="shell">${sidebar()}<div class="main">${page()}</div></div>`;
+  attachEvents();
+}
+
+function hdr(){
+  return `<div class="hdr"><div class="hdr-logo"><span>🔍</span>AI Functional Consultant</div>
+  <div class="hdr-badge">v2.0 · CrewAI · RAG · Word Docs + Diagrams</div><div class="hdr-spacer"></div>
+  ${['home','history','status-page'].map(p=>`<button class="hdr-btn ${S.page===p?'active':''}" onclick="nav('${p}')">${p==='home'?'New Session':p==='history'?'Sessions':'Status'}</button>`).join('')}
+  </div>`;
+}
+
+function sidebar(){
+  const s=S.session;
+  const steps=[{id:'home',l:'Create Session',done:!!s},{id:'upload',l:'Upload Recordings',done:s&&s.meetings&&s.meetings.length>0},{id:'processing',l:'Processing + MoM',done:s&&['reviewing','approved','published'].includes(s?.status)},{id:'review',l:'Review Documents',done:s&&['approved','published'].includes(s?.status)},{id:'published',l:'Published',done:s?.status==='published'}];
+  return `<div class="sidebar"><div class="sb-sec">Workflow</div>
+  ${steps.map(st=>`<div class="sb-item ${S.page===st.id?'active':''}" onclick="nav('${st.id}')"><div class="sb-dot ${st.done?'done':S.page===st.id?'active':''}"></div><span>${st.l}</span></div>`).join('')}
+  ${s?`<div class="sb-sec" style="margin-top:12px;">Active Session</div><div style="padding:0 8px 8px;"><div class="sb-info"><strong>${s.project_name||'Project'}</strong><span>ID: ${S.sessionId}</span><span>Status: <span class="badge ${sBadge(s.status)}">${s.status}</span></span><span>Meetings: ${(s.meetings||[]).length}</span><span>KB: ${s.kb_chunks||0} chunks</span></div></div>`:''}
+  <div class="sb-spacer"></div><div class="sb-sec">Tools</div>
+  <div class="sb-item ${S.page==='history'?'active':''}" onclick="nav('history')">📋 All Sessions</div>
+  <div class="sb-item ${S.page==='status-page'?'active':''}" onclick="nav('status-page')">⚙️ Server Status</div>
+  </div>`;
+}
+
+function page(){
+  switch(S.page){
+    case 'home':return pageHome();
+    case 'upload':return pageUpload();
+    case 'processing':return pageProcessing();
+    case 'review':return pageReview();
+    case 'published':return pagePublished();
+    case 'history':return pageHistory();
+    case 'status-page':return pageStatus();
+    default:return pageHome();
+  }
+}
+
+function stepsBar(a){
+  const steps=['🏁 Create','📤 Upload','⚙️ Process','🔍 Review','✅ Publish'];
+  return `<div class="steps">${steps.map((s,i)=>`<div class="step ${i===a?'active':''} ${i<a?'done':''}"><span class="step-num">${i<a?'✓':i+1}</span>${s}</div>`).join('')}</div>`;
+}
+
+function pBar(){
+  const p=S.progress,s=S.session,pct=p.pct||(s?.progress||0);
+  return `<div class="progress-wrap"><div class="progress-label"><span>${p.step||s?.current_step||'Waiting...'}</span><strong style="color:var(--blue)">${pct}%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>${p.message?`<div style="font-size:12px;color:var(--gray-400);margin-top:5px;">${p.message}</div>`:''}</div>`;
+}
+
+function logPanel(){
+  return `<div class="log">${S.log.length===0?'<span style="color:var(--gray-400)">Waiting for activity...</span>':S.log.map(l=>`<div class="log-entry"><span class="log-time">${l.t}</span><span>${l.m}</span></div>`).join('')}</div>`;
+}
+
+function sBadge(st){return{processing:'badge-blue',generating:'badge-blue',idle:'badge-gray',reviewing:'badge-amber',approved:'badge-green',published:'badge-green',error:'badge-red'}[st]||'badge-gray';}
+
+function pageHome(){
+  return `<div class="page-hdr"><h1>AI Functional Consultant</h1><p>Upload customer interview recordings (MP4). AI transcribes, extracts screen content, generates Minutes of Meeting, builds a knowledge base, and produces all 7 consulting documents as Word files with diagrams.</p></div>
+  ${stepsBar(0)}
+  ${S.error?`<div class="alert alert-error">⚠️ ${S.error}</div>`:''}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card"><div class="card-title">Start New Session</div>
+      <div class="form-group"><label class="form-label">Project / Customer Name</label>
+      <input id="proj-name" type="text" placeholder="e.g. Acme Solar — MES Discovery" value="${S.savedProject||''}"/></div>
+      <div class="btn-row"><button class="btn btn-primary" id="create-btn">🚀 Create Session</button></div>
+    </div>
+    <div class="card" style="background:var(--teal-l);border-color:#99f6e4;">
+      <div class="card-title" style="color:var(--teal);">📄 Documents Generated (Word + Diagrams)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        ${[['📋','MoM per meeting','Minutes of Meeting'],['📑','BRD','Business Requirements'],['📝','FRD','Functional Requirements'],['🔍','Gap Analysis','10-section ISA-95'],['🔄','Process Flows','AS-IS/TO-BE + Sequence'],['🏆','Best Practices','ISA-95/SEMI PV2/MESA'],['⛏','Process Mining','AI Process Discovery'],['📌','Req Spec','Master Specification']].map(([i,n,d])=>`<div style="display:flex;gap:8px;padding:8px;border:1px solid var(--gray-200);border-radius:6px;background:white;"><span>${i}</span><div><div style="font-size:12px;font-weight:600;color:var(--navy);">${n}</div><div style="font-size:10px;color:var(--gray-400);">${d}</div></div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function pageUpload(){
+  const s=S.session,meetings=s?.meetings||[],isProc=s?.status==='processing';
+  return `<div class="page-hdr"><h1>Upload Meeting Recordings</h1><p>Upload MP4 files one at a time. Each is transcribed by Whisper, screen-analysed by LLaVA, MoM generated, and added to the shared knowledge base.</p></div>
+  ${stepsBar(1)}
+  ${isProc?`<div class="alert alert-info"><div class="spinner"></div>Processing "${s.current_step}"...</div>`:''}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div class="card"><div class="card-title">Upload Video File</div>
+        <div class="form-group"><label class="form-label">Meeting Name (optional)</label>
+        <input id="meeting-name" type="text" placeholder="e.g. Discovery Session 1"/></div>
+        <div class="upload-area ${S.dragOver?'drag-over':''}" id="drop-zone">
+          <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+          <div style="font-size:14px;color:var(--gray-600);">Drop MP4 here or click to browse</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:6px;">Supported: .mp4 .avi .mov .mkv .webm</div>
+          <input type="file" id="video-file" accept=".mp4,.avi,.mov,.mkv,.webm" style="display:none"/>
+        </div>
+        <div id="file-selected" style="margin-top:8px;font-size:13px;color:var(--gray-600);"></div>
+        <div class="btn-row"><button class="btn btn-teal" id="upload-btn" ${isProc?'disabled':''}>⬆️ Upload & Process</button></div>
+        ${S.uploadError?`<div class="alert alert-error" style="margin-top:10px;">⚠️ ${S.uploadError}</div>`:''}
+      </div>
+      <div class="card"><div class="card-title">Progress</div>${pBar()}${logPanel()}</div>
+    </div>
+    <div>
+      <div class="card"><div class="card-title">Processed Meetings <span class="badge badge-teal">${meetings.length}</span></div>
+        ${meetings.length===0?`<div style="text-align:center;padding:24px;color:var(--gray-400);">No meetings yet. Upload your first MP4.</div>`:
+          meetings.map(m=>`<div class="meeting-card"><div class="meeting-icon">🎬</div><div class="meeting-info"><div class="meeting-name">${m.name}</div><div class="meeting-meta">${(m.transcript_len/1000).toFixed(1)}k chars · ${m.frame_count||0} frames · ${m.chunks} KB chunks</div></div><span class="badge badge-green">✓ Done</span></div>`).join('')}
+        ${meetings.length>0?`<div style="margin-top:16px;"><div style="font-size:13px;color:var(--gray-600);margin-bottom:10px;">KB: <strong>${s?.kb_chunks||0} chunks</strong> from ${meetings.length} meeting(s)</div><button class="btn btn-primary" id="gen-docs-btn" ${isProc?'disabled':''}>📄 Generate All Documents</button></div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function pageProcessing(){
+  const s=S.session,pct=S.progress.pct||(s?.progress||0);
+  const isGen=s?.status==='generating';
+  const docSteps=['BRD','FRD','Gap Analysis','Process Flows','Best Practices','Req Spec','Process Mining','Packaging'];
+  const cur=Math.floor((Math.max(0,pct-10)/85)*docSteps.length);
+  return `<div class="page-hdr"><h1>${isGen?'Generating Documents':'Processing Recording'}</h1><p>${isGen?'Running 7 AI agents generating Word documents with diagrams...':'Transcribing audio, analysing screen content, generating MoM...'}</p></div>
+  ${stepsBar(2)}
+  <div class="card"><div class="card-title">${isGen?'Document Generation Pipeline':'Video Processing Pipeline'}</div>${pBar()}
+    ${isGen?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;">${docSteps.map((step,i)=>`<div style="display:flex;align-items:center;gap:6px;padding:8px;border-radius:6px;font-size:12px;background:${i<cur?'var(--green-l)':i===cur?'var(--blue-l)':'var(--gray-50)'};color:${i<cur?'var(--green)':i===cur?'var(--blue)':'var(--gray-400)'}"><span>${i<cur?'✓':i===cur?'⟳':'○'}</span><span>${step}</span></div>`).join('')}</div>`:''}
+  </div>
+  <div class="card"><div class="card-title">Agent Activity Log</div>${logPanel()}</div>
+  ${s?.status==='reviewing'?`<div class="alert alert-success">✅ Documents ready! <button class="btn btn-success btn-sm" style="margin-left:12px;" onclick="nav('review')">Go to Review →</button></div>`:''}`;
+}
+
+function pageReview(){
+  const s=S.session,docs=s?.documents||[];
+  const moms=docs.filter(d=>d.type==='mom'),cons=docs.filter(d=>d.type==='consulting_doc');
+  const gen=docs.filter(d=>d.status==='generated'),appr=docs.filter(d=>d.approved);
+  return `<div class="page-hdr"><h1>Review & Approve Documents</h1><p>Preview each Word document, download individually, leave feedback, and approve. All documents include diagrams where applicable.</p></div>
+  ${stepsBar(3)}
+  <div class="stat-grid">
+    ${[['📄',gen.length,'Generated','blue'],['✅',appr.length,'Approved','green'],['🎬',moms.length,'MoM Files','teal'],['📋',cons.length,'Consulting Docs','amber']].map(([i,v,l,c])=>`<div class="stat-card"><div style="font-size:24px;">${i}</div><div class="stat-num" style="color:var(--${c})">${v}</div><div class="stat-label">${l}</div></div>`).join('')}
+  </div>
+  ${s?.status==='approved'?'<div class="alert alert-success">✅ All approved! Click Publish to finalise.</div>':''}
+  ${moms.length?`<div class="card"><div class="card-title">📋 Minutes of Meeting (Word)</div><div class="doc-grid">${moms.map(d=>docCard(d)).join('')}</div></div>`:''}
+  ${cons.length?`<div class="card"><div class="card-title">📄 Consulting Documents (Word + Diagrams)</div><div class="doc-grid">${cons.map(d=>docCard(d)).join('')}</div></div>`:''}
+  <div class="card"><div class="card-title">Overall Decision</div>
+    <div class="form-group"><label class="form-label">Review Comments</label>
+    <textarea id="review-comment" style="min-height:70px;" placeholder="Overall feedback...">${S.reviewComment||''}</textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-success" id="approve-all-btn">✅ Approve All & Publish</button>
+      <button class="btn btn-amber" id="req-changes-btn">📝 Request Changes</button>
+      <a href="${api.downloadUrl(S.sessionId)}" class="btn btn-outline" ${s?.zip_path?'':'style="pointer-events:none;opacity:.5;"'}>⬇️ Download ZIP</a>
+    </div>
+  </div>`;
+}
+
+function docCard(doc){
+  const isGen=doc.status==='generated',isFail=doc.status==='failed',isAppr=doc.approved;
+  return `<div class="doc-card ${isAppr?'approved':''} ${isFail?'failed':''} ${doc.type==='mom'?'mom':''}">
+    <div style="display:flex;align-items:flex-start;gap:10px;"><div class="doc-num">${doc.num}</div>
+      <div><div class="doc-name">${doc.name}</div><div class="doc-desc">${doc.description}</div></div></div>
+    <div>${isAppr?'<span class="badge badge-green">✓ Approved</span>':isFail?'<span class="badge badge-red">✗ Failed</span>':doc.type==='mom'?'<span class="badge badge-teal">MoM</span>':'<span class="badge badge-blue">Word + Diagrams</span>'}</div>
+    ${isGen?`<div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <a href="${api.previewUrl(S.sessionId,doc.id)}" target="_blank" class="btn btn-outline btn-sm">👁 Preview</a>
+      <a href="${api.docUrl(S.sessionId,doc.id)}" download class="btn btn-outline btn-sm">⬇ .docx</a>
+      ${!isAppr?`<button class="btn btn-success btn-sm" onclick="approveDoc('${doc.id}')">✓ Approve</button>`:''}
+    </div>
+    ${!isAppr?`<input type="text" style="width:100%;padding:5px 8px;border:1px solid var(--gray-200);border-radius:6px;font-size:11px;" placeholder="Optional feedback..." id="fb-${doc.id}" value="${S.docFeedback[doc.id]||''}" onchange="S.docFeedback['${doc.id}']=this.value"/>`:''}`:
+    `<div style="font-size:11px;color:var(--red);">Generation failed.</div>`}
+  </div>`;
+}
+
+function pagePublished(){
+  const s=S.session,docs=(s?.documents||[]).filter(d=>d.status==='generated');
+  return `<div class="page-hdr"><h1>✅ Package Published</h1><p>Your functional consulting package is complete with Word documents and diagrams.</p></div>
+  ${stepsBar(4)}
+  <div class="card" style="background:var(--green-l);border-color:#86efac;text-align:center;padding:32px;">
+    <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+    <h2 style="color:var(--green);margin-bottom:8px;">Consulting Package Ready</h2>
+    <p style="color:var(--gray-600);margin-bottom:20px;">${docs.length} Word documents with diagrams for <strong>${s?.project_name||'Project'}</strong></p>
+    <div class="btn-row" style="justify-content:center;">
+      <a href="${api.downloadUrl(S.sessionId)}" class="btn btn-success">⬇️ Download Complete Package (ZIP)</a>
+      <button class="btn btn-outline" onclick="nav('home')">🆕 New Session</button>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">Generated Documents</div><div class="doc-grid">
+    ${docs.map(d=>`<div class="doc-card approved"><div style="display:flex;align-items:flex-start;gap:10px;"><div class="doc-num">${d.num}</div><div><div class="doc-name">${d.name}</div><div class="doc-desc">${d.description}</div></div></div>
+    <div style="display:flex;gap:6px;"><a href="${api.previewUrl(S.sessionId,d.id)}" target="_blank" class="btn btn-outline btn-sm">👁 Preview</a><a href="${api.docUrl(S.sessionId,d.id)}" download class="btn btn-outline btn-sm">⬇ .docx</a></div></div>`).join('')}
+  </div></div>`;
+}
+
+function pageHistory(){
+  return `<div class="page-hdr"><h1>Session History</h1><p>All functional consulting sessions.</p></div>
+  <div id="history-list"><div style="display:flex;gap:10px;align-items:center;color:var(--gray-400);padding:20px;"><div class="spinner"></div>Loading...</div></div>`;
+}
+
+function pageStatus(){
+  const st=S.serverStatus;
+  return `<div class="page-hdr"><h1>Server & Model Status</h1><p>Check Ollama connectivity and model availability.</p></div>
+  <div class="card"><div class="card-title">Ollama Connection</div>
+    ${st===null?`<div style="display:flex;gap:10px;align-items:center;"><div class="spinner"></div>Checking...</div>`:
+    `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:24px;">${st.ollama_connected?'🟢':'🔴'}</span><span style="font-size:14px;font-weight:600;">${st.ollama_connected?'Ollama Connected':'Ollama Not Reachable'}</span></div>
+    ${!st.ollama_connected?'<div class="alert alert-error">Run <code>ollama serve</code> then refresh.</div>':''}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      ${[['Text Model (TEXT_MODEL)',st.text_model,st.text_model_ok],['Agent LLM (LLM_MODEL)',st.llm_model,st.llm_model_ok],['Vision (VISION_MODEL)',st.vision_model,st.vision_model_ok]].map(([l,m,ok])=>`<div style="padding:12px;border:1px solid var(--gray-200);border-radius:8px;"><div style="font-size:11px;color:var(--gray-400);text-transform:uppercase;">${l}</div><div style="font-size:13px;font-weight:600;color:var(--navy);margin:4px 0;">${m}</div><span class="badge ${ok?'badge-green':'badge-red'}">${ok?'✓ Available':'✗ Not found'}</span></div>`).join('')}
+    </div>
+    ${st.available_models.length?`<div style="margin-top:12px;"><div class="form-label">Available Models</div><div style="display:flex;flex-wrap:wrap;gap:6px;">${st.available_models.map(m=>`<span class="badge badge-gray">${m}</span>`).join('')}</div></div>`:''}`}
+  </div>
+  <div class="card" style="background:var(--amber-l);border-color:#fde68a;"><div class="card-title" style="color:var(--amber);">⚙️ Setup</div>
+    <div style="font-size:13px;color:var(--gray-600);line-height:2.2;">
+      <code>ollama serve</code> — Start Ollama<br/>
+      <code>ollama pull llama3.2:latest</code> — Text / document generation<br/>
+      <code>ollama pull llava:latest</code> — Vision / screen analysis<br/>
+      <code>ollama pull qwen2.5:14b</code> — Agent LLM (better quality)<br/>
+      <code>ollama pull nomic-embed-text</code> — Embeddings for knowledge base
+    </div>
+  </div>`;
+}
+
+function attachEvents(){
+  const cb=document.getElementById('create-btn');
+  if(cb)cb.onclick=async()=>{
+    const name=document.getElementById('proj-name')?.value?.trim();
+    if(!name){ss({error:'Enter a project/customer name.'});return;}
+    try{ss({error:null,savedProject:name});const r=await api.create(name);ss({sessionId:r.session_id,session:await api.get(r.session_id),page:'upload',log:[]});connectWS(r.session_id);}
+    catch(e){ss({error:e.message});}
+  };
+  const dz=document.getElementById('drop-zone');
+  if(dz){
+    dz.onclick=()=>document.getElementById('video-file')?.click();
+    dz.ondragover=e=>{e.preventDefault();ss({dragOver:true});};
+    dz.ondragleave=()=>ss({dragOver:false});
+    dz.ondrop=e=>{e.preventDefault();ss({dragOver:false});const f=e.dataTransfer.files[0];if(f){document.getElementById('video-file').files=e.dataTransfer.files;document.getElementById('file-selected').textContent=`Selected: ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;}};
+    const fi=document.getElementById('video-file');
+    if(fi)fi.onchange=()=>{const f=fi.files[0];if(f)document.getElementById('file-selected').textContent=`Selected: ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;};
+  }
+  const ub=document.getElementById('upload-btn');
+  if(ub)ub.onclick=async()=>{
+    const fi=document.getElementById('video-file');
+    if(!fi||!fi.files[0]){ss({uploadError:'Select a video file first.'});return;}
+    const name=document.getElementById('meeting-name')?.value?.trim()||'';
+    ss({uploadError:null});
+    try{const r=await api.upload(S.sessionId,fi.files[0],name);log(`Upload: ${r.meeting_name} (${r.file_size_mb}MB)`);const s=await api.get(S.sessionId);ss({session:s,page:'processing'});}
+    catch(e){ss({uploadError:e.message});}
+  };
+  const gb=document.getElementById('gen-docs-btn');
+  if(gb)gb.onclick=async()=>{try{await api.generate(S.sessionId);ss({page:'processing'});}catch(e){ss({error:e.message});}};
+  const aa=document.getElementById('approve-all-btn');
+  if(aa)aa.onclick=async()=>{
+    const com=document.getElementById('review-comment')?.value||'';
+    try{await api.review(S.sessionId,'approve',com,S.docFeedback);await api.publish(S.sessionId);const s=await api.get(S.sessionId);ss({session:s,page:'published'});}
+    catch(e){ss({error:e.message});}
+  };
+  const rc2=document.getElementById('req-changes-btn');
+  if(rc2)rc2.onclick=async()=>{const com=document.getElementById('review-comment')?.value||'';try{await api.review(S.sessionId,'request_changes',com,S.docFeedback);log('Changes requested');}catch(e){ss({error:e.message});}};
+  const rc=document.getElementById('review-comment');
+  if(rc)rc.onchange=()=>{S.reviewComment=rc.value;};
+  if(document.getElementById('history-list'))loadHistory();
+  if(S.page==='status-page'&&!S.serverStatus)api.status().then(st=>ss({serverStatus:st})).catch(()=>ss({serverStatus:{ollama_connected:false,available_models:[],text_model:'?',text_model_ok:false,llm_model:'?',llm_model_ok:false,vision_model:'?',vision_model_ok:false}}));
+}
+
+async function approveDoc(docId){
+  const fb=document.getElementById(`fb-${docId}`)?.value||'';
+  S.docFeedback[docId]=fb;
+  try{await api.approveDoc(S.sessionId,docId,fb);const s=await api.get(S.sessionId);ss({session:s});}
+  catch(e){alert(e.message);}
+}
+window.approveDoc=approveDoc;
+
+function nav(p){ss({page:p,error:null});}
+window.nav=nav;
+
+async function loadHistory(){
+  const el=document.getElementById('history-list');
+  if(!el)return;
+  try{
+    const sessions=await api.list();
+    if(!sessions.length){el.innerHTML='<div class="alert alert-info">No sessions yet.</div>';return;}
+    el.innerHTML=`<div class="card">${sessions.slice().reverse().map(s=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray-100);"><div><div style="font-size:13px;font-weight:600;color:var(--navy);">${s.project_name||'Project'}</div><div style="font-size:11px;color:var(--gray-400);">ID: ${s.session_id} · ${(s.meetings||[]).length} meetings · <span class="badge ${sBadge(s.status)}">${s.status}</span></div></div><div style="display:flex;gap:6px;">${s.status==='published'?`<a href="${api.downloadUrl(s.session_id)}" class="btn btn-success btn-sm">⬇ ZIP</a>`:''}<button class="btn btn-outline btn-sm" onclick="resume('${s.session_id}')">Resume</button></div></div>`).join('')}</div>`;
+  }catch(e){el.innerHTML=`<div class="alert alert-error">Load failed: ${e.message}</div>`;}
+}
+
+async function resume(sid){
+  try{const s=await api.get(sid);S.sessionId=sid;S.session=s;connectWS(sid);const map={processing:'processing',generating:'processing',reviewing:'review',approved:'review',published:'published'};S.page=map[s.status]||'upload';render();}
+  catch(e){alert(e.message);}
+}
+window.resume=resume;
+
+render();
+</script></body></html>
